@@ -1,0 +1,40 @@
+{
+  "name": "riskverifier",
+  "version": "0.1.0",
+  "description": "Risk-adaptive software change verification foundation",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "riskverifier": "dist/cli.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./configuration": "./dist/configuration/index.js",
+    "./domain": "./dist/domain/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "npm run clean:build && tsc -p tsconfig.json",
+    "clean:build": "node --eval \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "clean:test-output": "node --eval \"require('node:fs').rmSync('.test-dist', { recursive: true, force: true })\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "npm run test:compile && node --test .test-dist/test",
+    "test:compile": "npm run clean:test-output && tsc -p tsconfig.test.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.2",
+    "eslint": "10.11.0",
+    "prettier": "3.9.8",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0"
+  }
+}
