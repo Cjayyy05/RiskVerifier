@@ -223,7 +223,46 @@ Unresolved: some npm projects cannot build without lifecycle scripts. The produc
 - Disable or account for replacement/graft mechanisms and record the exact resolved object IDs.
 - Bound Git output and operation time.
 
-The precise safe Git invocation set must be threat-reviewed and tested in Phase 2.
+The Phase 2 invocation set is covered by adversarial fixture tests. This does not establish
+OS-level filesystem, network, or process-tree isolation.
+
+The Phase 2 adapter uses NUL-delimited `name-status` and `numstat` output, exact validated object
+IDs, `--no-ext-diff`, and `--no-textconv`. Repository discovery uses read-only `rev-parse` calls.
+Commit lookup and diffs then run against a temporary, verifier-owned bare metadata directory,
+with the selected repository's physical object directory supplied explicitly. Source-local config,
+refs, index, worktree attributes, and `info/attributes` are not used by those analysis operations.
+The source repository is never edited; temporary metadata is removed in `finally`, including on
+failure. Temporary workspace errors are typed and do not expose host paths.
+
+Attribute lookup uses `--attr-source=<exact-target>`; external and system attribute files are
+disabled. Target-committed attributes can intentionally select text/binary treatment. Custom
+driver commands/configuration are not loaded; external diff and textconv remain disabled.
+Diff behavior fixes the Myers algorithm, disables
+the indent heuristic, uses 50% rename/copy similarity, and caps exhaustive rename/copy candidates
+at 1,000. Each Git subprocess has a 30-second default timeout and a 16 MiB combined stdout/stderr
+capture limit; these limits are operator-side options and cannot be supplied by repository content.
+Interactive prompting, pagers, replacement objects, optional locks, lazy fetching, and system/global
+Git configuration are disabled for analyzer subprocesses. Metadata-declared alternate object stores
+(`objects/info/alternates` and `http-alternates`) are explicitly unsupported, including empty files;
+acquisition must supply a self-contained object database. Inherited Git variables, HOME and
+XDG_CONFIG_HOME are excluded. Only host executable-search/Windows runtime/temp variables are
+allow-listed, plus explicit adapter controls.
+
+Git is an operator-trusted host prerequisite, not an npm dependency. The default executable name
+uses the trusted host PATH; operators can supply an absolute trusted executable path through
+`GitProcessOptions.gitExecutable`. RiskVerifier does not authenticate or attest the binary.
+The reviewed host uses Git 2.47.1 for Windows; supported Git must understand `--no-lazy-fetch`,
+`--attr-source`, and `rev-parse --path-format=absolute`. Unsupported command options fail explicitly
+instead of silently relying on ignored environment variables.
+
+Timeouts accept 1 through 2,147,483,647 milliseconds (Node's timer range). Output is counted as raw
+combined stdout/stderr bytes before decoding; retention stops at the limit, with bounded transient
+chunk/concatenation overhead. Cancellation/timeout/output overflow kills the direct process and
+waits for its close event. First observed failure wins. This is not process-tree termination or
+a CPU/memory quota; the trusted Git binary must not leave descendants holding its pipes open.
+External repository helpers are disabled. Source metadata/object storage must remain stable during
+analysis: concurrent hostile filesystem mutation, Git binary vulnerabilities, OS failures to kill
+a process, and malicious object-store symlink swaps require stronger future acquisition/isolation.
 
 ### 4.12 Temporary working directories
 

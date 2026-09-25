@@ -10,7 +10,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./configuration": "./dist/configuration/index.js",
-    "./domain": "./dist/domain/index.js"
+    "./domain": "./dist/domain/index.js",
+    "./git": "./dist/git/index.js"
   },
   "files": [
     "dist"

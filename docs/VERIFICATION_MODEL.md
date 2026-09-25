@@ -51,7 +51,37 @@ A changed file records:
 - detected file/ecosystem facts; and
 - flags for binary, generated, oversized, unavailable, or otherwise unsupported content.
 
+For Phase 2 line statistics, textual changes carry nonnegative `additions` and `deletions`.
+Binary changes carry an explicit binary flag and use `null` for both counts; unknown line counts are
+not fabricated as zero. `ChangeSet` aggregate counts sum known textual counts and separately record
+that unknown counts are present.
+
 Rename/copy detection is an analyzer decision and must be versioned. A missing textual diff does not imply no risk; binary or oversized changes remain explicit inputs to classification/risk defaults.
+
+Phase 2 analyzer 2.1.0 sorts changed files by ascending UTF-8 bytes of the destination/current path;
+ordering has no priority or risk meaning. Decoding is strict UTF-8 and preserves a leading U+FEFF;
+invalid byte sequences fail explicitly. Paths remain opaque Git paths, not authorized host paths.
+Windows-invalid names or case collisions are not materialized by this analyzer; future filesystem
+consumers must validate platform containment and collision rules before accessing paths.
+
+Normal repositories, bare repositories and linked worktrees are supported. Mode-only changes are
+`MODIFIED` with Git's zero line counts. Type changes use Git's reported statistics. Gitlink pointer
+changes are recorded without recursion or checkout; Git's synthetic pointer-line statistics (such
+as 1/1 for a changed pointer) do not describe changes inside the submodule.
+
+Rename/copy similarity is 50% with at most 1,000 candidates for exhaustive detection. Git can report
+add/delete instead of a rename when similarity or this effort limit prevents a match. Copies use
+`--find-copies` without `--find-copies-harder`: unchanged files are not exhaustively searched as
+sources. These are heuristic Git facts, not proof of historical author intent.
+
+Phase 2 returns factual metadata and an analyzer version, with an empty `analysisEvidenceIds`
+array explicitly permitted at this boundary. This is not a completed verification evidence chain.
+The future orchestrator/evidence stage must attach actual canonical Evidence using frozen run,
+policy and configuration context; the adapter never fabricates evidence IDs. Future provenance
+must record the Git binary/version, analyzer version, diff-policy version, object-format identity
+and trusted environment/resource profile. Equal commits alone do not promise bit-for-bit output
+across Git versions. With stable object storage and the same Git/analyzer policy, source-local
+config, info attributes, branch, index and working-tree state do not affect factual output.
 
 ## 3. Change categories
 

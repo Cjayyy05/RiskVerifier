@@ -2,9 +2,69 @@ import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import ts from "typescript";
 
 const repositoryRoot = process.cwd();
 const domainRoot = path.join(repositoryRoot, "src", "domain");
+const gitRoot = path.join(repositoryRoot, "src", "git");
+
+function unsafeProcessUsage(source: string, isAdapter: boolean): readonly string[] {
+  const violations: string[] = [];
+  const tree = ts.createSourceFile("review.ts", source, ts.ScriptTarget.Latest, true);
+  const visit = (node: ts.Node): void => {
+    if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+      const specifier = node.moduleSpecifier;
+      if (
+        specifier &&
+        ts.isStringLiteral(specifier) &&
+        ["node:child_process", "child_process"].includes(specifier.text)
+      ) {
+        const bindings = ts.isImportDeclaration(node)
+          ? node.importClause?.namedBindings
+          : undefined;
+        const allowed =
+          isAdapter &&
+          ts.isImportDeclaration(node) &&
+          node.importClause?.name === undefined &&
+          bindings &&
+          ts.isNamedImports(bindings) &&
+          bindings.elements.length === 1 &&
+          bindings.elements[0]?.name.text === "spawn" &&
+          bindings.elements[0]?.propertyName === undefined;
+        if (!allowed) violations.push("process import");
+      }
+    }
+    if (ts.isCallExpression(node)) {
+      const expression = node.expression;
+      const loader =
+        expression.kind === ts.SyntaxKind.ImportKeyword ||
+        (ts.isIdentifier(expression) && expression.text === "require") ||
+        (ts.isPropertyAccessExpression(expression) && expression.name.text === "getBuiltinModule");
+      if (loader) {
+        const argument = node.arguments[0];
+        if (
+          !argument ||
+          !ts.isStringLiteral(argument) ||
+          ["node:child_process", "child_process"].includes(argument.text)
+        ) {
+          violations.push("process loader");
+        }
+      }
+    }
+    if (ts.isImportEqualsDeclaration(node)) violations.push("CommonJS import");
+    if (
+      ts.isPropertyAssignment(node) &&
+      (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) &&
+      node.name.text === "shell" &&
+      node.initializer.kind !== ts.SyntaxKind.FalseKeyword
+    ) {
+      violations.push("shell execution");
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(tree);
+  return violations;
+}
 
 async function listTypeScriptFiles(directory: string): Promise<readonly string[]> {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -85,4 +145,62 @@ void test("dependency detector rejects static, dynamic, CommonJS, and external i
     "database-client",
     "<dynamic module specifier>",
   ]);
+});
+
+void test("Git infrastructure uses the domain public contract and contains the only process adapter", async () => {
+  const gitSourceFiles = await listTypeScriptFiles(gitRoot);
+  assert.ok(gitSourceFiles.length > 0);
+
+  for (const sourceFile of gitSourceFiles) {
+    const source = await readFile(sourceFile, "utf8");
+    const forbidden = moduleSpecifiers(source).filter((specifier) => {
+      if (specifier.startsWith("node:")) {
+        return false;
+      }
+      if (!specifier.startsWith(".")) {
+        return true;
+      }
+      const resolved = path.resolve(path.dirname(sourceFile), specifier);
+      const relativeToGit = path.relative(gitRoot, resolved);
+      const staysInGit =
+        relativeToGit !== ".." &&
+        !relativeToGit.startsWith(`..${path.sep}`) &&
+        !path.isAbsolute(relativeToGit);
+      return !staysInGit && resolved !== path.join(domainRoot, "index.js");
+    });
+    assert.deepEqual(forbidden, [], path.relative(repositoryRoot, sourceFile));
+    assert.doesNotMatch(source, /shell\s*:\s*true/u, sourceFile);
+  }
+
+  const allSourceFiles = await listTypeScriptFiles(path.join(repositoryRoot, "src"));
+  for (const sourceFile of allSourceFiles) {
+    const source = await readFile(sourceFile, "utf8");
+    assert.deepEqual(
+      unsafeProcessUsage(source, sourceFile === path.join(gitRoot, "bounded-process.ts")),
+      [],
+      sourceFile,
+    );
+  }
+});
+
+void test("process boundary rejects alternate import forms and unsafe adapter APIs", () => {
+  for (const source of [
+    "import { spawn } from 'child_process';",
+    "import { spawn } from 'node:child_process';",
+    "const cp = import('node:child_process');",
+    "const cp = require('child_process');",
+    "const cp = process.getBuiltinModule('child_process');",
+    "import cp = require('node:child_process');",
+    "const cp = import(variable);",
+  ])
+    assert.ok(unsafeProcessUsage(source, false).length > 0, source);
+  for (const source of [
+    "import { exec } from 'node:child_process';",
+    "import { execSync } from 'child_process';",
+    "import * as cp from 'node:child_process';",
+    "spawn(tool, args, { 'shell': true });",
+    "spawn(tool, args, { shell: configuredShell });",
+  ])
+    assert.ok(unsafeProcessUsage(source, true).length > 0, source);
+  assert.deepEqual(unsafeProcessUsage("import { spawn } from 'node:child_process';", true), []);
 });
