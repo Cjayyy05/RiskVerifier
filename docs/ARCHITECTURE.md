@@ -30,7 +30,7 @@ The repository is an untrusted input to analysis and execution. Trusted RiskVeri
 |---|---|---|
 | `domain` | Domain values, invariants, state types, identifiers, decision/evidence contracts | HTTP, Git processes, database mapping, container APIs |
 | `git` | Resolve validated commits, compute bounded diffs, normalize changed files, produce `ChangeSet` | Classification, risk, or verdict decisions |
-| `classification` | Apply versioned deterministic rules and emit categories plus `ClassificationEvidence` | Risk scores or command execution |
+| `classification` | Apply versioned deterministic rules and emit categories plus intermediate `ChangeClassification` facts; later orchestration supplies genuine run context for canonical `ClassificationEvidence` (see [Phase 3 clarification](CLASSIFICATION.md)) | Risk scores or command execution |
 | `risk` | Apply deterministic risk rules to the change/classification and emit `RiskAssessment` | Verification selection or verdicts |
 | `policy` | Map change, classification, and risk to strategy dispositions and policy rationale | Concrete command construction or execution |
 | `planning` | Convert policy requirements into an immutable `VerificationPlan`, resolving supported checks from trusted configuration | Running checks or hiding unsupported requirements |

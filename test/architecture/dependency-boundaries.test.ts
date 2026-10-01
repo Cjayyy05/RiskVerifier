@@ -204,3 +204,26 @@ void test("process boundary rejects alternate import forms and unsafe adapter AP
     assert.ok(unsafeProcessUsage(source, true).length > 0, source);
   assert.deepEqual(unsafeProcessUsage("import { spawn } from 'node:child_process';", true), []);
 });
+
+void test("classification stays within pure rules, domain factories, and the public Git adapter", async () => {
+  const root = path.join(repositoryRoot, "src", "classification");
+  for (const file of await listTypeScriptFiles(root)) {
+    const source = await readFile(file, "utf8");
+    for (const specifier of moduleSpecifiers(source)) {
+      const allowed =
+        specifier === "../domain/index.js" ||
+        (path.basename(file) === "classifier.ts" && specifier === "../git/index.js") ||
+        (["classifier.ts", "syntax.ts"].includes(path.basename(file)) &&
+          specifier === "node:crypto") ||
+        (path.basename(file) === "syntax.ts" && specifier === "typescript") ||
+        /^\.\/[a-z-]+\.js$/u.test(specifier);
+      assert.ok(allowed, `${file}: ${specifier}`);
+    }
+    assert.doesNotMatch(source, /\b(?:eval|Function)\s*\(/u);
+    assert.doesNotMatch(source, /\b(?:riskScore|assessRisk|selectStrategy|createVerdict)\b/u);
+    assert.doesNotMatch(
+      source,
+      /\b(?:createProgram|createCompilerHost|transpileModule|transpile|resolveModuleName|readConfigFile|emit)\s*\(/u,
+    );
+  }
+});

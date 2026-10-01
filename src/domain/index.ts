@@ -2,6 +2,7 @@ export * from "./artifact.js";
 export * from "./change.js";
 export * from "./check.js";
 export * from "./classification.js";
+export * from "./classification-facts.js";
 export * from "./enums.js";
 export * from "./errors.js";
 export * from "./evidence.js";

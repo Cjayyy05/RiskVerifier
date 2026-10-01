@@ -11,7 +11,8 @@
     ".": "./dist/index.js",
     "./configuration": "./dist/configuration/index.js",
     "./domain": "./dist/domain/index.js",
-    "./git": "./dist/git/index.js"
+    "./git": "./dist/git/index.js",
+    "./classification": "./dist/classification/index.js"
   },
   "files": [
     "dist"
@@ -30,12 +31,14 @@
     "test:compile": "npm run clean:test-output && tsc -p tsconfig.test.json",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit"
   },
+  "dependencies": {
+    "typescript": "6.0.3"
+  },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "26.6.2",
     "eslint": "10.11.0",
     "prettier": "3.9.8",
-    "typescript": "6.0.3",
     "typescript-eslint": "8.70.0"
   }
 }
