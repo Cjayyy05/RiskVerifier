@@ -12,7 +12,8 @@
     "./configuration": "./dist/configuration/index.js",
     "./domain": "./dist/domain/index.js",
     "./git": "./dist/git/index.js",
-    "./classification": "./dist/classification/index.js"
+    "./classification": "./dist/classification/index.js",
+    "./risk": "./dist/risk/index.js"
   },
   "files": [
     "dist"

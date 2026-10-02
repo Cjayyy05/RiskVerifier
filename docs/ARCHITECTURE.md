@@ -31,7 +31,7 @@ The repository is an untrusted input to analysis and execution. Trusted RiskVeri
 | `domain` | Domain values, invariants, state types, identifiers, decision/evidence contracts | HTTP, Git processes, database mapping, container APIs |
 | `git` | Resolve validated commits, compute bounded diffs, normalize changed files, produce `ChangeSet` | Classification, risk, or verdict decisions |
 | `classification` | Apply versioned deterministic rules and emit categories plus intermediate `ChangeClassification` facts; later orchestration supplies genuine run context for canonical `ClassificationEvidence` (see [Phase 3 clarification](CLASSIFICATION.md)) | Risk scores or command execution |
-| `risk` | Apply deterministic risk rules to the change/classification and emit `RiskAssessment` | Verification selection or verdicts |
+| `risk` | Apply deterministic risk rules to the change/classification and emit intermediate `ChangeRiskAssessment`; later orchestration supplies genuine run context for canonical `RiskAssessment` / `RiskEvidence` (see [Phase 4 clarification](RISK.md)) | Verification selection or verdicts |
 | `policy` | Map change, classification, and risk to strategy dispositions and policy rationale | Concrete command construction or execution |
 | `planning` | Convert policy requirements into an immutable `VerificationPlan`, resolving supported checks from trusted configuration | Running checks or hiding unsupported requirements |
 | `execution` | Validate executable check specifications, enforce execution controls through an executor port, and return raw structured outcomes | Deciding risk or final verdict |
@@ -91,6 +91,7 @@ If shared orchestration contracts are needed, they belong in `domain` only when 
 - `RiskLevel`: `LOW`, `MEDIUM`, `HIGH`, or `CRITICAL`.
 - `RiskAssessment`: final level, matched rules, contributing categories/factors, and ordered evidence.
 - `RiskEvidence`: rule ID/version, observed fact, level contribution or escalation, source evidence references, and explanation.
+- Phase 4 uses additive `ChangeRiskAssessment`, `RiskFact`, and `RiskUncertainty` contracts because its inputs contain no genuine run/policy/configuration/time context. They retain normalized classification and exact index references without fabricating canonical Evidence. Existing canonical contracts remain available; risk level is never a deployment verdict. See [the implemented rule set](RISK.md).
 - `VerificationStrategy`: stable strategy vocabulary independent of a concrete runner.
 - `VerificationPolicy`: immutable rule set that assigns a disposition to every considered strategy.
 - `StrategyRequirement`: strategy, disposition (`MANDATORY`, `OPTIONAL`, `UNSUPPORTED`, `UNNECESSARY`), applicable conditions, absence behavior, frozen `PolicyVersion`, originating evidence, and policy evidence.

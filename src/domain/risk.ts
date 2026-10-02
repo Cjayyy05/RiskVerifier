@@ -9,7 +9,8 @@ import {
   type EvidenceId,
   type RuleId,
 } from "./identities.js";
-import { requireNonEmptyString } from "./validation.js";
+import { requireNonEmptyString, requirePlainObject, requireArray } from "./validation.js";
+import { validateRiskData } from "./risk-facts.js";
 import { createEvidence, type Evidence } from "./evidence.js";
 
 export interface RiskEvidence {
@@ -29,13 +30,19 @@ export function createRiskEvidence(input: {
   readonly observation: unknown;
   readonly sourceEvidenceIds?: readonly unknown[];
 }): RiskEvidence {
+  // Canonical Evidence permits JSON facts up to 64 levels deep, plus these wrappers.
+  validateRiskData(input, 80);
+  requirePlainObject(input, "riskEvidence");
   return deepFreeze({
     evidence: createEvidence(input.evidence),
     ruleId: createRuleId(input.ruleId),
     ruleVersion: createComponentVersion(input.ruleVersion),
     contribution: parseRiskLevel(input.contribution),
     observation: requireNonEmptyString(input.observation, "observation"),
-    sourceEvidenceIds: (input.sourceEvidenceIds ?? []).map(createEvidenceId),
+    sourceEvidenceIds: (input.sourceEvidenceIds === undefined
+      ? []
+      : requireArray(input.sourceEvidenceIds, "sourceEvidenceIds")
+    ).map(createEvidenceId),
   });
 }
 
@@ -50,6 +57,9 @@ export function createRiskAssessment(input: {
   readonly ruleSetVersion: unknown;
   readonly evidence: readonly RiskEvidence[];
 }): RiskAssessment {
+  validateRiskData(input, 80);
+  requirePlainObject(input, "riskAssessment");
+  requireArray(input.evidence, "riskEvidence");
   const evidence = input.evidence.map(createRiskEvidence);
   if (evidence.length === 0) {
     throw new InvariantViolationError("A risk assessment requires risk evidence");

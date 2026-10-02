@@ -8,6 +8,33 @@ const repositoryRoot = process.cwd();
 const domainRoot = path.join(repositoryRoot, "src", "domain");
 const gitRoot = path.join(repositoryRoot, "src", "git");
 
+void test("risk is pure domain consumption without classification, infrastructure or later policy", async () => {
+  const root = path.join(repositoryRoot, "src", "risk");
+  for (const file of await listTypeScriptFiles(root)) {
+    const source = await readFile(file, "utf8");
+    for (const specifier of moduleSpecifiers(source))
+      assert.ok(
+        specifier === "../domain/index.js" || /^\.\/[a-z-]+\.js$/u.test(specifier),
+        `${file}: ${specifier}`,
+      );
+    assert.doesNotMatch(
+      source,
+      /\b(?:eval|Function|require|fetch|createVerdict|createVerificationPlan|selectStrategy|createProgram|createSourceFile|getBuiltinModule)\s*\(/u,
+    );
+    assert.doesNotMatch(
+      source,
+      /\b(?:APPROVE|BLOCK|INCONCLUSIVE|VerificationStrategy|VerificationPlan|VerificationVerdict)\b/u,
+    );
+    assert.doesNotMatch(source, /\b(?:Date|process|Math\.random)\b/u);
+  }
+  for (const module of ["policy", "planning", "execution", "verdict", "api", "persistence", "jobs"])
+    assert.deepEqual(
+      await listTypeScriptFiles(path.join(repositoryRoot, "src", module)),
+      [],
+      `Later-phase module ${module} must remain unimplemented`,
+    );
+});
+
 function unsafeProcessUsage(source: string, isAdapter: boolean): readonly string[] {
   const violations: string[] = [];
   const tree = ts.createSourceFile("review.ts", source, ts.ScriptTarget.Latest, true);

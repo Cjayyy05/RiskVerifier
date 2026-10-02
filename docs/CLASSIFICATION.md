@@ -1,7 +1,7 @@
 # Phase 3: deterministic classification
 
-Classification describes a change. It is neither risk nor a deployment verdict. Phase 4 is not
-implemented. Public entry point: `riskverifier/classification`, `classifyChangeSet(changeSet,
+Classification describes a change. It is neither risk nor a deployment verdict. The separate
+[Phase 4 risk consumer](RISK.md) is implemented. Public entry point: `riskverifier/classification`, `classifyChangeSet(changeSet,
 gitContext, options?)`.
 
 ## Pipeline and context

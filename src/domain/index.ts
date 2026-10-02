@@ -10,5 +10,7 @@ export * from "./identities.js";
 export * from "./plan.js";
 export * from "./policy.js";
 export * from "./risk.js";
+export * from "./risk-facts.js";
+export * from "./risk-contract.js";
 export * from "./run.js";
 export * from "./verdict.js";
