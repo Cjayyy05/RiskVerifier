@@ -16,6 +16,7 @@ import {
   type RuleId,
 } from "./identities.js";
 import { requireNonEmptyString } from "./validation.js";
+export * from "./policy-facts.js";
 
 export interface VerificationPolicy {
   readonly version: PolicyVersion;

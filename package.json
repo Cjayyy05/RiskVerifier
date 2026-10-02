@@ -13,7 +13,8 @@
     "./domain": "./dist/domain/index.js",
     "./git": "./dist/git/index.js",
     "./classification": "./dist/classification/index.js",
-    "./risk": "./dist/risk/index.js"
+    "./risk": "./dist/risk/index.js",
+    "./policy": "./dist/policy/index.js"
   },
   "files": [
     "dist"

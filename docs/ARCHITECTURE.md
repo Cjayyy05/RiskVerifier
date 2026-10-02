@@ -61,6 +61,8 @@ Additional rules:
 - `classification` must not call `risk`; orchestration passes classification output to risk.
 - `risk` must not call `policy`; orchestration passes the risk assessment to policy.
 - `policy` returns requirements, not executable shell commands.
+- Phase 5 implements immutable `ChangeVerificationPolicy` with separate requirement strength and
+  capability availability; it replays public risk assessment before selection. See [POLICY.md](POLICY.md).
 - `planning` is the only module that binds policy requirements to trusted check definitions.
 - `verdict` consumes the frozen plan and collected results; it may not retroactively weaken a requirement.
 - `api` and persistence adapters translate domain types but do not duplicate decision logic.
