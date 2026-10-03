@@ -27,12 +27,31 @@ void test("risk is pure domain consumption without classification, infrastructur
     );
     assert.doesNotMatch(source, /\b(?:Date|process|Math\.random)\b/u);
   }
-  for (const module of ["planning", "execution", "verdict", "api", "persistence", "jobs"])
+  for (const module of ["execution", "verdict", "api", "persistence", "jobs"])
     assert.deepEqual(
       await listTypeScriptFiles(path.join(repositoryRoot, "src", module)),
       [],
       `Later-phase module ${module} must remain unimplemented`,
     );
+});
+
+void test("planning only materializes validated policy with deterministic identity", async () => {
+  for (const file of await listTypeScriptFiles(path.join(repositoryRoot, "src", "planning"))) {
+    const source = await readFile(file, "utf8");
+    for (const specifier of moduleSpecifiers(source))
+      assert.ok(
+        specifier === "../domain/index.js" ||
+          (path.basename(file) === "planner.ts" &&
+            ["../policy/index.js", "node:crypto"].includes(specifier)) ||
+          /^\.\/[a-z-]+\.js$/u.test(specifier),
+        `${file}: ${specifier}`,
+      );
+    assert.doesNotMatch(
+      source,
+      /\b(?:process|Date|fetch|eval|Function|createVerdict|assessRisk|evaluatePolicy|policyIntensity|Math\.random|randomUUID)\b/u,
+    );
+    assert.doesNotMatch(source, /\b(?:npm|shell|executable|stdout|stderr|timeout|APPROVE)\b/u);
+  }
 });
 
 void test("policy consumes domain and public risk replay without execution or planning", async () => {

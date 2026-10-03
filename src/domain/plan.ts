@@ -15,6 +15,7 @@ import { requireIsoTimestamp } from "./validation.js";
 import { createVerificationCheck, type VerificationCheck } from "./check.js";
 import { createStrategyRequirement, type StrategyRequirement } from "./policy.js";
 import { createRiskAssessment, type RiskAssessment } from "./risk.js";
+export * from "./plan-facts.js";
 
 export interface VerificationPlan {
   readonly id: VerificationPlanId;

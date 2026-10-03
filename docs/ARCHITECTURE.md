@@ -64,6 +64,9 @@ Additional rules:
 - Phase 5 implements immutable `ChangeVerificationPolicy` with separate requirement strength and
   capability availability; it replays public risk assessment before selection. See [POLICY.md](POLICY.md).
 - `planning` is the only module that binds policy requirements to trusted check definitions.
+- Phase 6 currently materializes conceptual checks without executable definitions, as required by
+  its implementation scope. Its additive run-independent `ChangeVerificationPlan` preserves the
+  original run-bound contracts; command binding is deferred. See [PLANNING.md](PLANNING.md).
 - `verdict` consumes the frozen plan and collected results; it may not retroactively weaken a requirement.
 - `api` and persistence adapters translate domain types but do not duplicate decision logic.
 - Cross-module imports use each module's public contract, not internal implementation files.

@@ -1,13 +1,12 @@
 # Source module boundaries
 
-Phases 1–5 implement `domain`, configuration snapshot validation/identity, the bounded read-only
-Git change analyzer, deterministic classification, risk assessment and verification policy,
+Phases 1–6 implement `domain`, configuration snapshot validation/identity, the bounded read-only
+Git change analyzer, deterministic classification, risk assessment, verification policy and conceptual planning,
 minimal structured-logging support, and the harmless CLI entry point. Snapshot
 validation does not confer operator authorization; a later acquisition boundary must establish
 configuration provenance. The placeholder directories reserve the remaining approved
 modular-monolith locations without introducing implementations or abstractions early:
 
-- `planning` — Phase 6
 - `execution` — Phase 7
 - `evidence` and `verdict` — Phase 8
 - `jobs` and `persistence` — Phase 10
@@ -19,7 +18,7 @@ will implement their behavior.
 
 The Git adapter may create and remove its own temporary bare metadata directory to isolate source
 configuration and attributes; it never modifies the analyzed repository. Only `bounded-process.ts`
-owns production subprocess creation in Phases 1–5. Later execution infrastructure requires an
+owns production subprocess creation in Phases 1–6. Later execution infrastructure requires an
 explicit boundary/test update rather than bypassing that guard.
 
 `classification/classifier.ts` coordinates the public Git content adapter, pure rules, and domain
@@ -32,7 +31,7 @@ execution. Domain never imports classification or Git.
 parser, Git, classifier, execution, policy-selection or verdict dependency. Its pure public entry
 point is `assessRisk(changeSet, classification)`. It emits immutable intermediate
 `ChangeRiskAssessment` / `RiskFact` values; no run evidence IDs are invented. `risk` is implemented;
-Phase 6 and all later behavior remain unimplemented. Existing later-phase domain contracts are
+Phase 7 and all later behavior remain unimplemented. Existing later-phase domain contracts are
 not implementations.
 
 `validateRiskAssessment` replays a supplied result against separately trusted inputs without adding
@@ -45,3 +44,9 @@ See [Phase 4 risk assessment](../docs/RISK.md) for rules, source binding, uncert
 `policy` implements pure conceptual strategy selection through domain contracts and public risk
 replay. It cannot access repositories, execute checks, construct plans or issue verdicts.
 See [Phase 5 policy](../docs/POLICY.md) for intermediate contracts and capability semantics.
+
+`planning` consumes public policy replay and domain contracts, using only Node's SHA-256 hashing
+for deterministic content identity. Its immutable `ChangeVerificationPlan` binds exact source,
+versions and separately supplied configuration/capabilities, with one conceptual check per selected
+strategy. It does not bind executable definitions, read repositories, execute or evaluate verdicts.
+See [Phase 6 planning](../docs/PLANNING.md) for the run-independent contract clarification.
