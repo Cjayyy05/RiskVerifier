@@ -6,6 +6,23 @@ RiskVerifier processes repositories that may be buggy, malformed, unsafe, or unt
 
 Security controls reduce risk; they do not make executing hostile code safe.
 
+### Implemented Phase 7 boundary
+
+Phase 7 permits local execution **only on disposable, operator-controlled fixture data** through
+the APIs in [EXECUTION.md](EXECUTION.md). It cannot adopt an arbitrary repository directory.
+Trusted structured definitions, an independent absolute-path Node/verifier allow-list, content pins,
+exact plan replay, fixture manifest checks, minimal environment, timeout and bounded raw output are
+implemented. Repository package scripts and configuration never supply execution authority.
+
+This is not a sandbox: a trusted verifier still runs with the controller user's filesystem and
+network privileges. Only the direct child is killed; CPU, memory, PID, disk and network isolation,
+process-tree containment, redaction, authenticated persisted evidence and remote acquisition are
+not implemented. Unconfirmed termination returns ERROR and quarantines the executor/workspace;
+there is no automatic reaper. Phase 9 is required before broadening this boundary, with independent
+review; intentionally malicious repositories remain outside the current claim. Host mutation between
+validation and execution is not prevented. The broader controls below remain target requirements
+unless an implemented phase is explicitly identified.
+
 ## 2. Threat-model boundary
 
 ### 2.1 In scope

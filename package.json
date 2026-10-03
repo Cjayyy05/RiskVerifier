@@ -15,7 +15,8 @@
     "./classification": "./dist/classification/index.js",
     "./risk": "./dist/risk/index.js",
     "./policy": "./dist/policy/index.js",
-    "./planning": "./dist/planning/index.js"
+    "./planning": "./dist/planning/index.js",
+    "./execution": "./dist/execution/index.js"
   },
   "files": [
     "dist"

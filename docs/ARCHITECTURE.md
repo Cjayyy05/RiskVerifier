@@ -132,6 +132,14 @@ Classification, risk, policy, and planning are pure or near-pure deterministic t
 
 ## 7. Execution boundary
 
+Phase 7 implements only the controlled-fixture subset described in [EXECUTION.md](EXECUTION.md).
+`createControlledExecutor` exposes a single-check primitive, not a scheduler or full-plan runner.
+It replays the Phase 6 conceptual plan, binds its configuration identity to a validated execution
+registry, applies an independent host allow-list, and returns an immutable intermediate
+`ExecutionCheckResult`. Phase 6 plans and Phase 1 canonical run/evidence contracts are not changed.
+The execution module consumes the public planning replay API; the bounded verification adapter is
+distinct from the bounded Git adapter. These are the only two permitted production process owners.
+
 The core engine depends on an `Executor` port conceptually shaped around structured data:
 
 ```text
@@ -142,7 +150,10 @@ An approved check contains an executable selected from an allow-list and an argu
 
 Verification commands must not use `child_process.exec`, `execSync`, `{ shell: true }`, or an equivalent shell-launch mode. Command chaining and redirection syntax have no execution meaning because untrusted strings are never evaluated by a shell. A lower-level spawn API with an exact executable and argument array is required.
 
-The boundary enforces:
+The complete target architecture requires the following controls. This is not a claim that all are
+implemented in Phase 7: current local checks have timeout/output bounds, explicit environment and
+fixture containment validation, but no network/CPU/memory/PID/disk isolation or process-tree guarantee.
+Those stronger controls require Phase 9 and further review.
 
 - no shell interpolation;
 - executable and argument validation against trusted configuration;

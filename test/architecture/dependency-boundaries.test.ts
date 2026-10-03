@@ -27,7 +27,7 @@ void test("risk is pure domain consumption without classification, infrastructur
     );
     assert.doesNotMatch(source, /\b(?:Date|process|Math\.random)\b/u);
   }
-  for (const module of ["execution", "verdict", "api", "persistence", "jobs"])
+  for (const module of ["evidence", "verdict", "api", "persistence", "jobs"])
     assert.deepEqual(
       await listTypeScriptFiles(path.join(repositoryRoot, "src", module)),
       [],
@@ -210,7 +210,7 @@ void test("dependency detector rejects static, dynamic, CommonJS, and external i
   ]);
 });
 
-void test("Git infrastructure uses the domain public contract and contains the only process adapter", async () => {
+void test("Git and verification execution have exactly the approved process-owning adapters", async () => {
   const gitSourceFiles = await listTypeScriptFiles(gitRoot);
   assert.ok(gitSourceFiles.length > 0);
 
@@ -239,11 +239,53 @@ void test("Git infrastructure uses the domain public contract and contains the o
   for (const sourceFile of allSourceFiles) {
     const source = await readFile(sourceFile, "utf8");
     assert.deepEqual(
-      unsafeProcessUsage(source, sourceFile === path.join(gitRoot, "bounded-process.ts")),
+      unsafeProcessUsage(
+        source,
+        [
+          path.join(gitRoot, "bounded-process.ts"),
+          path.join(repositoryRoot, "src", "execution", "bounded-execution.ts"),
+        ].includes(sourceFile),
+      ),
       [],
       sourceFile,
     );
   }
+});
+
+void test("execution owns only controlled local invocation and never policy or verdict decisions", async () => {
+  const allowed: Readonly<Record<string, readonly string[]>> = {
+    "authority.ts": ["node:fs/promises", "node:path"],
+    "bounded-execution.ts": ["node:child_process"],
+    "configuration.ts": ["node:path"],
+    "executor.ts": ["node:crypto", "../planning/index.js"],
+    "workspace.ts": ["node:fs/promises", "node:os", "node:path", "node:crypto"],
+    "validation.ts": ["node:path", "node:crypto"],
+  };
+  for (const file of await listTypeScriptFiles(path.join(repositoryRoot, "src", "execution"))) {
+    const source = await readFile(file, "utf8");
+    for (const specifier of moduleSpecifiers(source))
+      assert.ok(
+        specifier === "../domain/index.js" ||
+          /^\.\/[a-z-]+\.js$/u.test(specifier) ||
+          allowed[path.basename(file)]?.includes(specifier),
+        `${file}: ${specifier}`,
+      );
+    assert.doesNotMatch(
+      source,
+      /\b(?:APPROVE|BLOCK|INCONCLUSIVE|eval|Function|fetch|createVerdict|evaluatePolicy|assessRisk|chdir|getBuiltinModule)\b/u,
+    );
+    assert.doesNotMatch(
+      source,
+      /\.\.\.process\.env|\b(?:execSync|execFile|execFileSync|spawnSync|fork)\s*\(/u,
+    );
+  }
+  const adapter = await readFile(
+    path.join(repositoryRoot, "src/execution/bounded-execution.ts"),
+    "utf8",
+  );
+  assert.match(adapter, /shell:\s*false/u);
+  assert.match(adapter, /windowsHide:\s*true/u);
+  assert.match(adapter, /cwd:\s*invocation\.directory/u);
 });
 
 void test("process boundary rejects alternate import forms and unsafe adapter APIs", () => {

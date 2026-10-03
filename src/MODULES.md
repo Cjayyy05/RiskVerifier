@@ -1,13 +1,12 @@
 # Source module boundaries
 
-Phases 1–6 implement `domain`, configuration snapshot validation/identity, the bounded read-only
+Phases 1–7 implement `domain`, configuration snapshot validation/identity, the bounded read-only
 Git change analyzer, deterministic classification, risk assessment, verification policy and conceptual planning,
-minimal structured-logging support, and the harmless CLI entry point. Snapshot
+controlled fixture execution, minimal structured-logging support, and the harmless CLI entry point. Snapshot
 validation does not confer operator authorization; a later acquisition boundary must establish
 configuration provenance. The placeholder directories reserve the remaining approved
 modular-monolith locations without introducing implementations or abstractions early:
 
-- `execution` — Phase 7
 - `evidence` and `verdict` — Phase 8
 - `jobs` and `persistence` — Phase 10
 - `api` — Phase 11
@@ -17,9 +16,9 @@ through `domain/index.ts`. Domain contracts for later concepts remain in `domain
 will implement their behavior.
 
 The Git adapter may create and remove its own temporary bare metadata directory to isolate source
-configuration and attributes; it never modifies the analyzed repository. Only `bounded-process.ts`
-owns production subprocess creation in Phases 1–6. Later execution infrastructure requires an
-explicit boundary/test update rather than bypassing that guard.
+configuration and attributes; it never modifies the analyzed repository. Only
+`git/bounded-process.ts` and `execution/bounded-execution.ts` own production subprocess creation.
+Architecture tests enumerate these exact owners; Git and verification remain separate trust domains.
 
 `classification/classifier.ts` coordinates the public Git content adapter, pure rules, and domain
 fact factories. `rules.ts` has no infrastructure imports; `syntax.ts` uses only the pinned
@@ -31,7 +30,7 @@ execution. Domain never imports classification or Git.
 parser, Git, classifier, execution, policy-selection or verdict dependency. Its pure public entry
 point is `assessRisk(changeSet, classification)`. It emits immutable intermediate
 `ChangeRiskAssessment` / `RiskFact` values; no run evidence IDs are invented. `risk` is implemented;
-Phase 7 and all later behavior remain unimplemented. Existing later-phase domain contracts are
+Phase 8 and all later behavior remain unimplemented. Existing later-phase domain contracts are
 not implementations.
 
 `validateRiskAssessment` replays a supplied result against separately trusted inputs without adding
@@ -50,3 +49,12 @@ for deterministic content identity. Its immutable `ChangeVerificationPlan` binds
 versions and separately supplied configuration/capabilities, with one conceptual check per selected
 strategy. It does not bind executable definitions, read repositories, execute or evaluate verdicts.
 See [Phase 6 planning](../docs/PLANNING.md) for the run-independent contract clarification.
+
+`execution` replays the public Phase 6 plan against independently supplied planning inputs, resolves
+one check through its separately trusted definition registry, checks an independent host executable/
+verifier allow-list, and runs only a freshly allocated controlled fixture. Its sole subprocess owner
+is `bounded-execution.ts`; it cannot select policy, assess risk or calculate a verdict. Local execution
+is not an OS sandbox. The additive `ExecutionCheckResult` reuses domain result states and retains
+plan context without inventing canonical run Evidence. Configuration/authority/workspace infrastructure
+stays local to this module; the existing Phase 1 configuration schema and Phase 1–6 baselines are unchanged.
+See [Phase 7 execution](../docs/EXECUTION.md) for public APIs, protocol and explicit limitations.
