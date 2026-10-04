@@ -233,6 +233,11 @@ Optional checks:
 
 The policy must define optional-failure treatment rather than leaving it to executor or UI interpretation.
 
+Phase 8 honors the Phase 5 optional-omission contract. Supported optional checks without captured
+evidence may be omitted; known evidence loss or unsupported/unavailable capability is not a waiver.
+Supplied optional outcomes retain their approved failure/unavailability treatment. See
+[VERDICT.md](VERDICT.md) for the matrix and run-independent assessment/replay contract.
+
 ## 7. Verification strategies
 
 | Strategy | Intent | Initial support expectation |

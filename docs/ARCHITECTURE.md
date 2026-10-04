@@ -270,6 +270,24 @@ DeployFlow integration is Phase 14 and may impose requirements on authentication
 
 ## 14. Deferred decisions
 
+### Phase 8 implementation clarification
+
+The pure `evidence` and `verdict` modules are implemented as described in [VERDICT.md](VERDICT.md).
+They use run-independent `ExecutionEvidenceReference` and `VerdictAssessment`, preserving the
+canonical historical domain contracts without inventing run/evidence IDs. Separately trusted
+planning inputs and retained execution binding/digest references are required for intake replay.
+The new `execution/results` public subpath exposes the existing pure Phase 7 result validator,
+without importing execution authority or changing its approved source/version fingerprint.
+This additive package boundary is not a new execution adapter.
+
+Mandatory checks require satisfying evidence; supported optional checks may be omitted when no
+captured evidence exists. Supplied optional outcomes and known evidence loss cannot be ignored.
+Material review-required coverage remains unresolved because no resolution-evidence contract has
+been approved. Assessment replay is not historical authentication; storage/authentication and
+coverage-resolution design remain future work. No later-phase behavior is implemented.
+
+### Remaining deferred decisions
+
 - Concrete web framework, database, job queue, and container runtime.
 - The initial set of executable strategies and their trusted command definitions.
 - How dependencies are provisioned without trusting repository-controlled installation hooks.

@@ -282,4 +282,7 @@ There is no CPU, memory, PID, filesystem, disk, network or process-tree isolatio
 pins do not prevent hostile-host TOCTOU changes, attest dependencies or authenticate result history.
 Workspace context does not attest a real Git snapshot or artifact. There is no automatic dependency
 provisioning, broad verifier suite, public output rendering/redaction, persistence or final verdict.
-Phase 7 must stop at controlled execution and adversarial review; Phase 8/9 work is not implemented.
+Phase 7 stops at controlled execution and adversarial review. Phase 8 now consumes its existing
+result validator through the additive pure `execution/results` package subpath, without modifying
+executor source or behavior. See [VERDICT.md](VERDICT.md) for independent evidence binding and
+interpretation. Phase 9 remains unimplemented.

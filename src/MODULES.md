@@ -1,13 +1,12 @@
 # Source module boundaries
 
-Phases 1–7 implement `domain`, configuration snapshot validation/identity, the bounded read-only
+Phases 1–8 implement `domain`, configuration snapshot validation/identity, the bounded read-only
 Git change analyzer, deterministic classification, risk assessment, verification policy and conceptual planning,
-controlled fixture execution, minimal structured-logging support, and the harmless CLI entry point. Snapshot
+controlled fixture execution, pure evidence interpretation/verdict evaluation, minimal structured-logging support, and the harmless CLI entry point. Snapshot
 validation does not confer operator authorization; a later acquisition boundary must establish
 configuration provenance. The placeholder directories reserve the remaining approved
 modular-monolith locations without introducing implementations or abstractions early:
 
-- `evidence` and `verdict` — Phase 8
 - `jobs` and `persistence` — Phase 10
 - `api` — Phase 11
 
@@ -30,7 +29,7 @@ execution. Domain never imports classification or Git.
 parser, Git, classifier, execution, policy-selection or verdict dependency. Its pure public entry
 point is `assessRisk(changeSet, classification)`. It emits immutable intermediate
 `ChangeRiskAssessment` / `RiskFact` values; no run evidence IDs are invented. `risk` is implemented;
-Phase 8 and all later behavior remain unimplemented. Existing later-phase domain contracts are
+Phase 9 and all later behavior remain unimplemented. Existing later-phase domain contracts are
 not implementations.
 
 `validateRiskAssessment` replays a supplied result against separately trusted inputs without adding
@@ -58,3 +57,18 @@ is not an OS sandbox. The additive `ExecutionCheckResult` reuses domain result s
 plan context without inventing canonical run Evidence. Configuration/authority/workspace infrastructure
 stays local to this module; the existing Phase 1 configuration schema and Phase 1–6 baselines are unchanged.
 See [Phase 7 execution](../docs/EXECUTION.md) for public APIs, protocol and explicit limitations.
+
+`evidence` implements a pure boundary that replays the public Phase 6 plan, validates independently
+trusted execution bindings, reuses Phase 7 result validation and matches independently retained
+whole-result digests. The additive public `execution/results` package entry targets the existing
+pure `execution/result.ts`, not the executor index or adapters. No approved Phase 1–7 source changes
+are needed. `verdict` consumes public evidence validation and domain contracts; the two new modules
+share private bounded canonical-data/hash/freeze utilities in `evidence/validation.ts`.
+
+`verdict` emits a detached immutable `VerdictAssessment`: check/coverage contributions, ordered
+reasons and provenance, plus `BLOCK` > `INCONCLUSIVE` > `APPROVE`. Supported optional omission is
+neutral when no evidence was captured; known evidence loss and supplied optional outcomes remain
+accounted for. Required coverage remains unresolved without an approved resolution contract.
+Neither module has execution authority, filesystem/network access, scheduling, persistence or
+deployment behavior. No canonical historical run/evidence IDs are fabricated.
+See [Phase 8 verdicts](../docs/VERDICT.md) for trust prerequisites, public APIs and limitations.

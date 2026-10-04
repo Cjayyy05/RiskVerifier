@@ -164,6 +164,13 @@ No phase should require modifying DeployFlow before Phase 14.
 
 **Exit criteria:** Approval requires affirmative complete mandatory evidence; valid mandatory failures block; incomplete evidence is inconclusive unless frozen policy explicitly defines a block; every verdict reason resolves to evidence.
 
+Phase 8 implementation status: the pure evidence/verdict modules and adversarial regression tests
+are present; see [VERDICT.md](VERDICT.md). They preserve Phase 1–7 source/version baselines, use
+run-independent assessments and independently retained binding/digest references, and require all
+mandatory checks to satisfy their obligations. Supported optional omission is allowed when no
+captured evidence exists; supplied optional outcomes retain their approved handling semantics.
+Review-required coverage is not automatically resolved. No Phase 9 implementation has started.
+
 ### Phase 9 — Isolation/container executor
 
 **Objective:** Replace or supplement local process execution with a hardened, reproducible execution backend.

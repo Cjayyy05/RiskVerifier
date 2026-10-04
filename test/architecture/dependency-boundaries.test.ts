@@ -27,7 +27,7 @@ void test("risk is pure domain consumption without classification, infrastructur
     );
     assert.doesNotMatch(source, /\b(?:Date|process|Math\.random)\b/u);
   }
-  for (const module of ["evidence", "verdict", "api", "persistence", "jobs"])
+  for (const module of ["api", "persistence", "jobs"])
     assert.deepEqual(
       await listTypeScriptFiles(path.join(repositoryRoot, "src", module)),
       [],

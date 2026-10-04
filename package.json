@@ -16,7 +16,10 @@
     "./risk": "./dist/risk/index.js",
     "./policy": "./dist/policy/index.js",
     "./planning": "./dist/planning/index.js",
-    "./execution": "./dist/execution/index.js"
+    "./execution": "./dist/execution/index.js",
+    "./execution/results": "./dist/execution/result.js",
+    "./evidence": "./dist/evidence/index.js",
+    "./verdict": "./dist/verdict/index.js"
   },
   "files": [
     "dist"
