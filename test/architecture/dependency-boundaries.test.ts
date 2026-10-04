@@ -244,6 +244,7 @@ void test("Git and verification execution have exactly the approved process-owni
         [
           path.join(gitRoot, "bounded-process.ts"),
           path.join(repositoryRoot, "src", "execution", "bounded-execution.ts"),
+          path.join(repositoryRoot, "src", "isolation", "docker-adapter.ts"),
         ].includes(sourceFile),
       ),
       [],

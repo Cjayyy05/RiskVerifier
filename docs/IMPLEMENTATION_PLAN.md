@@ -186,6 +186,11 @@ Review-required coverage is not automatically resolved. No Phase 9 implementatio
 
 **Exit criteria:** Existing executor contract tests pass; controller secrets/control sockets are unavailable; network/resource/path controls are demonstrated. Security documentation still states containers are not protection against sophisticated escape attacks.
 
+Phase 9 implementation is the additive Windows Docker Desktop Linux-container fixture backend
+documented in [ISOLATION.md](ISOLATION.md), with ordinary unit tests and a separate explicit
+Docker integration command. It preserves Phase 7/8 semantics and does not materialize repositories.
+Phase 10 remains unimplemented.
+
 ### Phase 10 — Persistence and job lifecycle
 
 **Objective:** Make long-running verification durable, retry-aware, cancellable, and idempotent.

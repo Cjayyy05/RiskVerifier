@@ -25,6 +25,16 @@ unless an implemented phase is explicitly identified.
 
 ## 2. Threat-model boundary
 
+### Implemented Phase 9 boundary
+
+The separate Docker backend applies fixed network-disabled, non-root, dropped-capability,
+no-new-privileges, read-only-root/source and bounded scratch/resource controls to controlled fixtures.
+It executes only separately approved pinned verifier files using a pre-provisioned immutable image.
+It neither pulls/builds images nor runs repository scripts. Unconfirmed termination or removal
+quarantines state. Host-direct Phase 7 remains unchanged and is not silently upgraded to isolation.
+Docker/kernel/host trust and malicious-container-escape exclusions still apply. See
+[ISOLATION.md](ISOLATION.md) for implementation scope and Docker-backed validation.
+
 ### 2.1 In scope
 
 The MVP considers accidental and opportunistic threats including:

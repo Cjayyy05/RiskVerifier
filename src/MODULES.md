@@ -1,6 +1,6 @@
 # Source module boundaries
 
-Phases 1–8 implement `domain`, configuration snapshot validation/identity, the bounded read-only
+Phases 1–9 implement `domain`, configuration snapshot validation/identity, the bounded read-only
 Git change analyzer, deterministic classification, risk assessment, verification policy and conceptual planning,
 controlled fixture execution, pure evidence interpretation/verdict evaluation, minimal structured-logging support, and the harmless CLI entry point. Snapshot
 validation does not confer operator authorization; a later acquisition boundary must establish
@@ -16,7 +16,7 @@ will implement their behavior.
 
 The Git adapter may create and remove its own temporary bare metadata directory to isolate source
 configuration and attributes; it never modifies the analyzed repository. Only
-`git/bounded-process.ts` and `execution/bounded-execution.ts` own production subprocess creation.
+`git/bounded-process.ts`, `execution/bounded-execution.ts` and `isolation/docker-adapter.ts` own production subprocess creation.
 Architecture tests enumerate these exact owners; Git and verification remain separate trust domains.
 
 `classification/classifier.ts` coordinates the public Git content adapter, pure rules, and domain
@@ -29,7 +29,7 @@ execution. Domain never imports classification or Git.
 parser, Git, classifier, execution, policy-selection or verdict dependency. Its pure public entry
 point is `assessRisk(changeSet, classification)`. It emits immutable intermediate
 `ChangeRiskAssessment` / `RiskFact` values; no run evidence IDs are invented. `risk` is implemented;
-Phase 9 and all later behavior remain unimplemented. Existing later-phase domain contracts are
+Phase 10 and all later behavior remain unimplemented. Existing later-phase domain contracts are
 not implementations.
 
 `validateRiskAssessment` replays a supplied result against separately trusted inputs without adding
@@ -72,3 +72,12 @@ accounted for. Required coverage remains unresolved without an approved resoluti
 Neither module has execution authority, filesystem/network access, scheduling, persistence or
 deployment behavior. No canonical historical run/evidence IDs are fabricated.
 See [Phase 8 verdicts](../docs/VERDICT.md) for trust prerequisites, public APIs and limitations.
+
+`isolation` adds the separately versioned Docker Linux-container backend for controlled fixtures.
+Only `docker-adapter.ts` owns Docker calls and exact-ID lifecycle management. Configuration fixes
+security/mount/command roles and binds approved immutable images and verifier pins. The executor
+reuses package-internal Phase 7 workspace/validation functions and public plan replay, without
+modifying their source or broadening the host executor. Results explicitly wrap Phase 7 protocol
+DTOs with container provenance; no verdict semantics change. There is no repository checkout,
+dependency installation, image pull/build or later-phase orchestration.
+See [Phase 9 isolation](../docs/ISOLATION.md) for supported platform, tests and trust limitations.

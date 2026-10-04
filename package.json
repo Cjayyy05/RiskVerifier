@@ -19,7 +19,8 @@
     "./execution": "./dist/execution/index.js",
     "./execution/results": "./dist/execution/result.js",
     "./evidence": "./dist/evidence/index.js",
-    "./verdict": "./dist/verdict/index.js"
+    "./verdict": "./dist/verdict/index.js",
+    "./isolation": "./dist/isolation/index.js"
   },
   "files": [
     "dist"
@@ -35,6 +36,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "test": "npm run test:compile && node --test .test-dist/test",
+    "test:isolation": "npm run test:compile && node --test .test-dist/integration/isolation.test.js",
     "test:compile": "npm run clean:test-output && tsc -p tsconfig.test.json",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit"
   },

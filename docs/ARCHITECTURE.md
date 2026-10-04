@@ -288,6 +288,12 @@ coverage-resolution design remain future work. No later-phase behavior is implem
 
 ### Remaining deferred decisions
 
+Phase 9 now adds a separate `isolation` module, dedicated Docker process owner and explicit
+container-result envelope. It reuses the existing Phase 7 protocol and controlled-workspace
+implementation without changing host behavior or Phase 8 interpretation. Windows Docker Desktop
+Linux/amd64 controlled fixtures are the initial supported backend. See [ISOLATION.md](ISOLATION.md)
+for exact authority, cleanup/quarantine, resource and image boundaries. No Phase 10 work is included.
+
 - Concrete web framework, database, job queue, and container runtime.
 - The initial set of executable strategies and their trusted command definitions.
 - How dependencies are provisioned without trusting repository-controlled installation hooks.
